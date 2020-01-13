@@ -1,5 +1,6 @@
 package com.example.readwide;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -9,13 +10,20 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
 
+import android.os.NetworkOnMainThreadException;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ScrollView;
 
+import org.json.JSONException;
+
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
@@ -44,17 +52,28 @@ public class MainActivity extends AppCompatActivity {
                 String search = searchText.getText().toString();
                 LibraryInterface oll = new LibraryInterface();
                 try {
-                    ArrayList<Book> books = oll.makeBooks(oll.basicSearch(search));
-                    displayResutls(books);
-                } catch (Exception e){
-                    Log.d("PeggyNobes","Search click throws exception");
+                    AsyncTask<String, Long, ArrayList<Book>> books = oll.execute(search);
+//                    Log.d("PeggyNobes","" +books.get().size());
+                    displayResutls(oll.books);
+//                } catch (JSONException e){
+//                    Log.d("PeggyNobes","Search click throws JSONexception");
+//                } catch (IOException ex){
+//                    Log.d("PeggyNobes","Search click throws IOException");
+                } catch (NetworkOnMainThreadException e){
+                    Log.d("PeggyNobes","networkonmainthreadexception going on");
+                } catch (Exception e) {
+                    Log.d("PeggyNobes", "Other Excaption");
                 }
             }
         });
     }
 
     private void displayResutls(ArrayList<Book> books) {
-        CardView cardView = findViewById(R.id.resultsViewer);
+        ScrollView scroll = findViewById(R.id.resultsView);
+        LayoutInflater inflater = getLayoutInflater();
+        for (Book b : books){
+            scroll.addView(b.getSmallView(inflater));
+        }
 
     }
 

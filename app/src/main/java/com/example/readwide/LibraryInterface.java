@@ -1,5 +1,8 @@
 package com.example.readwide;
 
+import android.os.AsyncTask;
+import android.util.Log;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -13,14 +16,29 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 
-public class LibraryInterface {
+public class LibraryInterface extends AsyncTask<String, Long, ArrayList<Book> > {
     String searchAPI = "https://openlibrary.org/search.json?";
+    ArrayList<Book> books;
 
     public LibraryInterface(){
 
     }
 
+    @Override
+    protected ArrayList<Book> doInBackground(String... strings){
+        try{
+            JSONObject result = basicSearch(strings[0]);
+            books = makeBooks(result);
+            return books;}
+        catch (IOException | JSONException ex){
+            return null;
+        }
+
+
+    }
+
     public JSONObject basicSearch (String search)throws IOException, JSONException{
+        Log.d("PeggyNobes","Started basic search");
         String url = searchAPI + "q=";
         for (int i = 0; i < search.length(); i ++ ){
             if(search.charAt(i) != ' '){
@@ -34,7 +52,9 @@ public class LibraryInterface {
     }
 
     public JSONObject readJsonFromUrl(String url) throws IOException, JSONException {
+        Log.d("PeggyNobes","Started read json from URL: " + url);
         InputStream is = new URL(url).openStream();
+        Log.d("PeggyNobes","readJson stream opened");
         try {
             BufferedReader rd = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
             String jsonText = readAll(rd);
