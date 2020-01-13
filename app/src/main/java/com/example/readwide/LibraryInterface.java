@@ -13,6 +13,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
+import java.net.URLConnection;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 
@@ -53,16 +54,30 @@ public class LibraryInterface extends AsyncTask<String, Long, ArrayList<Book> > 
 
     public JSONObject readJsonFromUrl(String url) throws IOException, JSONException {
         Log.d("PeggyNobes","Started read json from URL: " + url);
-        InputStream is = new URL(url).openStream();
-        Log.d("PeggyNobes","readJson stream opened");
+
         try {
-            BufferedReader rd = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
-            String jsonText = readAll(rd);
-            JSONObject json = new JSONObject(jsonText);
-            return json;
-        } finally {
-            is.close();
+            URLConnection urlCon = new URL(url).openConnection();
+            InputStreamReader in;
+            if(urlCon != null) {
+                urlCon.setReadTimeout(60 * 1000);
+                if (urlCon != null && urlCon.getInputStream() != null) {
+                    in = new InputStreamReader(urlCon.getInputStream(),
+                            Charset.defaultCharset());
+
+                    Log.d("PeggyNobes", "readJson stream opened");
+                    BufferedReader rd = new BufferedReader(in);
+                    String jsonText = readAll(rd);
+                    JSONObject json = new JSONObject(jsonText);
+                    return json;
+                }
+            } else {
+                Log.d("PeggyNobes","Null value somewhere");
+                return null;
+            }
+        } catch (Exception e){
+            Log.d("PeggyNobes","Who TF knows what's going on?");
         }
+        return null;
     }
 
     private String readAll(Reader rd) throws IOException {
