@@ -19,6 +19,15 @@ import java.util.ArrayList;
 
 public class LibraryInterface extends AsyncTask<String, Long, ArrayList<Book> > {
     String searchAPI = "https://openlibrary.org/search.json?";
+
+    public ArrayList<Book> getBooks() {
+        return books;
+    }
+
+    public void setBooks(ArrayList<Book> books) {
+        this.books = books;
+    }
+
     ArrayList<Book> books;
 
     public LibraryInterface(){
@@ -28,7 +37,7 @@ public class LibraryInterface extends AsyncTask<String, Long, ArrayList<Book> > 
     @Override
     protected ArrayList<Book> doInBackground(String... strings){
         try{
-            JSONObject result = basicSearch(strings[0]);
+            JSONArray result = basicSearch(strings[0]);
             books = makeBooks(result);
             return books;}
         catch (IOException | JSONException ex){
@@ -38,7 +47,7 @@ public class LibraryInterface extends AsyncTask<String, Long, ArrayList<Book> > 
 
     }
 
-    public JSONObject basicSearch (String search)throws IOException, JSONException{
+    public JSONArray basicSearch (String search)throws IOException, JSONException{
         Log.d("PeggyNobes","Started basic search");
         String url = searchAPI + "q=";
         for (int i = 0; i < search.length(); i ++ ){
@@ -52,7 +61,7 @@ public class LibraryInterface extends AsyncTask<String, Long, ArrayList<Book> > 
         return readJsonFromUrl(url);
     }
 
-    public JSONObject readJsonFromUrl(String url) throws IOException, JSONException {
+    public JSONArray readJsonFromUrl(String url) throws IOException, JSONException {
         Log.d("PeggyNobes","Started read json from URL: " + url);
 
         try {
@@ -67,20 +76,21 @@ public class LibraryInterface extends AsyncTask<String, Long, ArrayList<Book> > 
                     Log.d("PeggyNobes", "readJson stream opened");
                     BufferedReader rd = new BufferedReader(in);
                     String jsonText = readAll(rd);
-                    JSONObject json = new JSONObject(jsonText);
+                    JSONArray json = new JSONObject(jsonText).getJSONArray("docs");
                     return json;
                 }
             } else {
                 Log.d("PeggyNobes","Null value somewhere");
                 return null;
             }
-        } catch (Exception e){
+        } catch (JSONException | IOException e){
             Log.d("PeggyNobes","Who TF knows what's going on?");
         }
         return null;
     }
 
     private String readAll(Reader rd) throws IOException {
+        Log.d("PeggyNobes","Started readAll");
         StringBuilder sb = new StringBuilder();
         int cp;
         while ((cp = rd.read()) != -1) {
@@ -89,10 +99,9 @@ public class LibraryInterface extends AsyncTask<String, Long, ArrayList<Book> > 
         return sb.toString();
     }
 
-    public ArrayList<Book> makeBooks(JSONObject results) throws JSONException{
+    public ArrayList<Book> makeBooks(JSONArray bookList) throws JSONException{
         ArrayList<Book>books = new ArrayList<>();
-        JSONArray bookList = results.getJSONArray("docs");
-        for (int i = 0; i < bookList.length(); i++)
+        for (int i = 0; i < bookList.length() && i < 20; i++)
         {
             books.add(new Book(bookList.getJSONObject(i)));
         }

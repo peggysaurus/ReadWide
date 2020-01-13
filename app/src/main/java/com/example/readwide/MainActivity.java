@@ -52,9 +52,11 @@ public class MainActivity extends AppCompatActivity {
                 String search = searchText.getText().toString();
                 LibraryInterface oll = new LibraryInterface();
                 try {
-                    AsyncTask<String, Long, ArrayList<Book>> books = oll.execute(search);
+                    oll.execute(search);
 //                    Log.d("PeggyNobes","" +books.get().size());
-                    displayResutls(oll.books);
+                    ArrayList<Book> books = oll.getBooks();
+                    Log.d("PeggyNobes","Got books: " + books.size());
+                    displayResutls(books);
 //                } catch (JSONException e){
 //                    Log.d("PeggyNobes","Search click throws JSONexception");
 //                } catch (IOException ex){
