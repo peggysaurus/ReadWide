@@ -30,8 +30,10 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:ems="10"
+                android:hint="Search"
                 android:inputType="textPersonName"
-                android:text="Search" />
+                android:selectAllOnFocus="true"
+                android:singleLine="true" />
 
             <Button
                 android:id="@+id/searchBtn"
@@ -42,14 +44,22 @@
         </LinearLayout>
 
         <ScrollView
-            android:id="@+id/resultsView"
+            android:id="@+id/scrollView"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
             <LinearLayout
+                android:id="@+id/resultsView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical" />
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/testField"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text=" Nochange" />
+            </LinearLayout>
         </ScrollView>
 
     </LinearLayout>
