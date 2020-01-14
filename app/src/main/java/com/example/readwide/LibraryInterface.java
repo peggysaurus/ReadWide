@@ -63,12 +63,20 @@ public class LibraryInterface extends AppCompatActivity{
         super.onDestroy();
     }
 
-        public Call<SearchResult> getBooks(String search) throws IOException {
-            ApiService apiService = retrofit.create(ApiService.class);
-            Log.d("Peggy","start retrofit search for: " + search);
-            Call<SearchResult> call = apiService.getSearchData("search",search);
-            return call;
-        }
+    public Call<SearchResult> getBooks(String search) throws IOException {
+        ApiService apiService = retrofit.create(ApiService.class);
+        Log.d("Peggy","start retrofit search for: " + search);
+        Call<SearchResult> call = apiService.getSearchData("search",search);
+        return call;
+    }
+
+    public Call<Book> getOneBook(String key) throws IOException {
+        ApiService apiService = retrofit.create(ApiService.class);
+        Log.d("Peggy","start retrofit search for: " + key);
+        Call<Book> call = apiService.getKeyData(key);
+        return call;
+    }
+
 
     Retrofit retrofit = new Retrofit.Builder()
             .baseUrl(baseUrl)
@@ -83,6 +91,8 @@ public class LibraryInterface extends AppCompatActivity{
 //                                );
         @GET("{search}.json")
         Call<SearchResult> getSearchData(@Path("search") String searchtype, @Query("q") String search);
+
+        @GET("{search}.json")
         Call<Book> getKeyData(@Path("search") String key);
     }
 
