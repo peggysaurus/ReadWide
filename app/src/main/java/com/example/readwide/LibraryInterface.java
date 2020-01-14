@@ -171,6 +171,7 @@ public class LibraryInterface extends AppCompatActivity{
 
         public Call<SearchResult> getBooks(String search) throws IOException {
             ApiService apiService = retrofit.create(ApiService.class);
+            Log.d("Peggy","start retrofit search for: " + search);
             Call<SearchResult> call = apiService.getSearchData("search",search);
 //            apiService.getSearchData("search", search).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
 //            Log.d("PeggyNobes","in getBooks, set call");

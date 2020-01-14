@@ -59,35 +59,46 @@ public class MainActivity extends AppCompatActivity {
         searchBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d("Peggy","Search clicked");
+                Log.d("Peggy", "Search clicked");
                 EditText searchText = findViewById(R.id.searchText);
                 String search = searchText.getText().toString();
+                Log.d("Peggy","Searching for " + search);
+                if (search.equals("")) {
+                    Log.d("Peggy", "Search is empty");
+                } else {
+                while (search.contains(" ")) {
+                    StringBuilder sb = new StringBuilder(search);
+                    sb.setCharAt(search.indexOf(" "), '+');
+                    search = sb.toString();
+                }
                 LibraryInterface oll = new LibraryInterface();
-                try {
-//                    oll.execute(search);
-//                    Log.d("PeggyNobes","" +books.get().size());
-                    List<Book> books = new ArrayList<>();
 
-                    Call<SearchResult> call = oll.getBooks("unkindness+of+ghosts");
-                    call.enqueue(callBack());
-//                    Log.d("Peggy","OLL Working:" + oll.working);
-//                    boolean wait = oll.working;
-//                    TextView test = findViewById(R.id.testField);
-//                    while (wait){
-//                        test.setText("do something");
-//                        wait = oll.working;
-//                        Log.d("Peggy","OLL Working:" + wait);
-//                    }
-//                    afterSearch(books);
-//
-//                } catch (JSONException e){
-//                    Log.d("PeggyNobes","Search click throws JSONexception");
-//                } catch (IOException ex){
-//                    Log.d("PeggyNobes","Search click throws IOException");
-                } catch (NetworkOnMainThreadException e){
-                    Log.d("PeggyNobes","networkonmainthreadexception going on");
-                } catch (Exception e) {
-                    Log.d("PeggyNobes", "Other Exception: " + e);
+                    try {
+                        //                    oll.execute(search);
+                        //                    Log.d("PeggyNobes","" +books.get().size());
+                        //                    List<Book> books = new ArrayList<>();
+
+                        Call<SearchResult> call = oll.getBooks(search);
+                        call.enqueue(callBack());
+                        //                    Log.d("Peggy","OLL Working:" + oll.working);
+                        //                    boolean wait = oll.working;
+                        //                    TextView test = findViewById(R.id.testField);
+                        //                    while (wait){
+                        //                        test.setText("do something");
+                        //                        wait = oll.working;
+                        //                        Log.d("Peggy","OLL Working:" + wait);
+                        //                    }
+                        //                    afterSearch(books);
+                        //
+                        //                } catch (JSONException e){
+                        //                    Log.d("PeggyNobes","Search click throws JSONexception");
+                        //                } catch (IOException ex){
+                        //                    Log.d("PeggyNobes","Search click throws IOException");
+                    } catch (NetworkOnMainThreadException e) {
+                        Log.d("PeggyNobes", "networkonmainthreadexception going on");
+                    } catch (Exception e) {
+                        Log.d("PeggyNobes", "Other Exception: " + e);
+                    }
                 }
             }
         });

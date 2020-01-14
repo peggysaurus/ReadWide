@@ -132,9 +132,14 @@ public class Book {
         TextView title_tv = bookView.findViewById(R.id.title_tv);
         title_tv.setText(getTitle());
         TextView author_tv = bookView.findViewById(R.id.author_tv);
-        author_tv.setText(getAuthorName().get(0));
+        if(getAuthorName()!=null) {
+            author_tv.setText(getAuthorName().get(0));
+        }
+        else{
+            author_tv.setText("Unknown");
+        }
         ImageView cover_iv = bookView.findViewById(R.id.cover_iv);
-        Picasso.with(context).load(getSmallCover());
+        Picasso.with(context).load(getMediumCover()).into(cover_iv);
         return bookView;
     }
 
