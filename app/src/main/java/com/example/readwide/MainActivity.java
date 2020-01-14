@@ -1,5 +1,6 @@
 package com.example.readwide;
 
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 
@@ -108,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
         LinearLayout results = findViewById(R.id.resultsView);
         LayoutInflater inflater = getLayoutInflater();
         for (Book b : books){
-            results.addView(b.getSmallView(inflater, this.getApplicationContext()));
+            results.addView(b.getSmallView(inflater, this.getApplicationContext(), new Intent(MainActivity.this, ViewBookActivity.class)));
         }
 
     }

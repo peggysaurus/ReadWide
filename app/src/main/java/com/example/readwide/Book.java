@@ -1,6 +1,8 @@
 package com.example.readwide;
 
 import android.content.Context;
+import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
@@ -12,6 +14,8 @@ import java.util.zip.Inflater;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.squareup.picasso.Picasso;
+
+import static androidx.core.content.ContextCompat.startActivity;
 
 public class Book {
 
@@ -126,7 +130,7 @@ public class Book {
         this.publicScanB = publicScanB;
     }
 
-    public View getSmallView(LayoutInflater inflater, Context context){
+    public View getSmallView(LayoutInflater inflater, final Context context, final Intent intent){
 
         View bookView = inflater.inflate(R.layout.result_card, null);
         TextView title_tv = bookView.findViewById(R.id.title_tv);
@@ -144,6 +148,8 @@ public class Book {
             @Override
             public void onClick(View v) {
                 Log.d("Peggy","Open the book page for " + getKey());
+                intent.putExtra("key",getKey());
+                context.startActivity(intent);
             }
         });
         return bookView;
