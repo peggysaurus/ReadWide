@@ -47,97 +47,6 @@ import retrofit2.http.Query;
 public class LibraryInterface extends AppCompatActivity{
     String searchAPI = "https://openlibrary.org/search.json";
     String baseUrl = "https://openlibrary.org/";
-    List<Book>books = new ArrayList<>();
-    boolean working = false;
-//    public ArrayList<Book> getBooks() {
-//        return books;
-//    }
-//
-//    public void setBooks(ArrayList<Book> books) {
-//        this.books = books;
-//    }
-//
-//    ArrayList<Book> books;
-
-//    public LibraryInterface(){
-//
-//    }
-//
-//    @Override
-//    protected ArrayList<Book> doInBackground(String... strings){
-//        try{
-//            JSONArray result = basicSearch(strings[0]);
-//            books = makeBooks(result);
-//            return books;}
-//        catch (IOException | JSONException ex){
-//            return null;
-//        }
-//
-//
-//    }
-//
-//    public JSONArray basicSearch (String search)throws IOException, JSONException{
-//        Log.d("PeggyNobes","Started basic search");
-//        String url = searchAPI + "?q=";
-//        for (int i = 0; i < search.length(); i ++ ){
-//            if(search.charAt(i) != ' '){
-//                url = url + search.charAt(i);
-//            }
-//            else {
-//                url = url + "+";
-//            }
-//        }
-//        return readJsonFromUrl(url);
-//    }
-//
-//    public JSONArray readJsonFromUrl(String url) throws IOException, JSONException {
-//        Log.d("PeggyNobes","Started read json from URL: " + url);
-//
-//        try {
-//            URLConnection urlCon = new URL(url).openConnection();
-//            InputStreamReader in;
-//            if(urlCon != null) {
-//                urlCon.setReadTimeout(60 * 1000);
-//                if (urlCon != null && urlCon.getInputStream() != null) {
-//                    in = new InputStreamReader(urlCon.getInputStream(),
-//                            Charset.defaultCharset());
-//
-//                    Log.d("PeggyNobes", "readJson stream opened");
-//                    BufferedReader rd = new BufferedReader(in);
-//                    String jsonText = readAll(rd);
-//                    JSONArray json = new JSONObject(jsonText).getJSONArray("docs");
-//                    return json;
-//                }
-//            } else {
-//                Log.d("PeggyNobes","Null value somewhere");
-//                return null;
-//            }
-//        } catch (JSONException | IOException e){
-//            Log.d("PeggyNobes","Who TF knows what's going on?");
-//        }
-//        return null;
-//    }
-//
-//    private String readAll(Reader rd) throws IOException {
-//        Log.d("PeggyNobes","Started readAll");
-//        StringBuilder sb = new StringBuilder();
-//        int cp;
-//        while ((cp = rd.read()) != -1) {
-//            sb.append((char) cp);
-//        }
-//        return sb.toString();
-//    }
-//
-//    public ArrayList<Book> makeBooks(JSONArray bookList) throws JSONException{
-//        ArrayList<Book>books = new ArrayList<>();
-//        for (int i = 0; i < bookList.length() && i < 20; i++)
-//        {
-//            books.add(new Book(bookList.getJSONObject(i)));
-//        }
-//        return books;
-//    }
-
-//    ApiService apiService;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -154,56 +63,12 @@ public class LibraryInterface extends AppCompatActivity{
         super.onDestroy();
     }
 
-//    public Book getBook(String id){
-//        final Book[] book = {null};
-//        Call<Book>call = apiService.getBookData("books/" + id);
-//        call.enqueue(new Callback<Book>() {
-//            @Override
-//            public void onResponse(Call<Book> call, Response<Book> response) {
-//                book[0] = response.body();
-//            }
-//
-//            @Override
-//            public void onFailure(Call<Book> call, Throwable t) {
-//
-//            }
-//        });
-
         public Call<SearchResult> getBooks(String search) throws IOException {
             ApiService apiService = retrofit.create(ApiService.class);
             Log.d("Peggy","start retrofit search for: " + search);
             Call<SearchResult> call = apiService.getSearchData("search",search);
-//            apiService.getSearchData("search", search).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
-//            Log.d("PeggyNobes","in getBooks, set call");
-//            Callback<SearchResult> callback = callBack();
-
-//            return call.;
-//            call.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
-//                    .subscribe(new SingleObserver<SearchResult>() {
-//                        @Override
-//                        public void onSubscribe(Disposable d) {
-//                            compositeDisposable.add(d);
-//                            working = true;
-//                        }
-//
-//                        @Override
-//                        public void onSuccess(SearchResult sr) {
-//                            books = sr.getBooks();
-//                            Log.d("Peggy","Found books: " + sr.getBooks().size());
-//                            working = false;
-//                        }
-//
-//                        @Override
-//                        public void onError(Throwable e) {
-//                            Log.d("PeggyNobes","Error in getBook subscribe: " + e);
-//                            working = false;
-//                        }
-//                    });
             return call;
         }
-
-
-
 
     Retrofit retrofit = new Retrofit.Builder()
             .baseUrl(baseUrl)
@@ -218,7 +83,7 @@ public class LibraryInterface extends AppCompatActivity{
 //                                );
         @GET("{search}.json")
         Call<SearchResult> getSearchData(@Path("search") String searchtype, @Query("q") String search);
-        Call<Book> getBookData(@Path("search") String searchtype);
+        Call<Book> getKeyData(@Path("search") String key);
     }
 
 }

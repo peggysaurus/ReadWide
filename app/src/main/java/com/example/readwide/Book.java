@@ -140,6 +140,12 @@ public class Book {
         }
         ImageView cover_iv = bookView.findViewById(R.id.cover_iv);
         Picasso.with(context).load(getMediumCover()).into(cover_iv);
+        bookView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d("Peggy","Open the book page for " + getKey());
+            }
+        });
         return bookView;
     }
 
