@@ -76,6 +76,14 @@ public class User {
         getUserBooks().add(uBook);
         return true;
     }
+
+    public void addTagToMetric(String key, String tag) {
+        MetricInterpretor interpretor = getMetricInt();
+        interpretor.addValue(key, tag);
+        List<UserMetric> userMetrics = new ArrayList<>();
+        userMetrics.add((new Gson()).fromJson(interpretor.getMapAsJson(), UserMetric.class));
+        setUserMetrics(userMetrics);
+    }
 }
 
 class Id {

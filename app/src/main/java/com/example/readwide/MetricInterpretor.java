@@ -8,6 +8,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -47,9 +48,27 @@ public class MetricInterpretor {
             toMap.add(list);
         }
         metrics.put(key,toMap);
-
     }
 
+    public void addValue(String key, String value){
+        metrics.get(key).add(value);
+    }
+
+    public String getMapAsJson (){
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            Map<String, Object> temp = new HashMap<String, Object>();
+            for(String key : metrics.keySet()){
+                temp.put(key,metrics.get(key));
+            }
+            String output = mapper.writeValueAsString(temp);
+            Log.d("Peggy","New metrics = " + output);
+            return output;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 
     public Set<String> getKeys(){
         return metrics.keySet();

@@ -1,6 +1,8 @@
 package com.example.readwide;
 
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -22,8 +24,12 @@ import androidx.appcompat.widget.Toolbar;
 
 import android.os.Parcelable;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
@@ -137,9 +143,20 @@ public class ViewBookActivity extends AppCompatActivity {
                 RadioGroup rg = (RadioGroup) child;
                 RadioButton rb = findViewById(rg.getCheckedRadioButtonId());
                 String key = rg.getTag().toString();
+                Log.d("PeggyTags","Found tag: " + key);
                 if(rb != null){
                     String tag = rb.getText().toString();
-                    tags.put(key,tag);
+                    if(tag.equals("other")){
+                        Log.d("PeggyTags","other tag found gets next field: " + metview.getChildAt(i+1).getTag());
+                        View newEntry = metview.getChildAt(i+1);
+                        if(newEntry instanceof EditText){
+                            tag = ((EditText) newEntry).getText().toString();
+                            user.addTagToMetric(key,tag);
+                        }
+                    }
+                    if(tag!=null) {
+                        tags.put(key, tag);
+                    }
                 }
             }
         }
@@ -195,8 +212,45 @@ public class ViewBookActivity extends AppCompatActivity {
                 rb.setText(met.getList(key).get(j));
                 rg.addView(rb);
             }
+            RadioButton rb = new RadioButton(this.getApplicationContext());
+            rb.setText("other");
+            rb.setTag("other");
+            rg.addView(rb);
+        final EditText et = new EditText(this.getApplicationContext());
+        et.setTag("OtherEntry");
+//        et.setEnabled(false);
+//        et.setFocusable(false);
+        et.setSingleLine(true);
+        et.setText("");
+        et.setHint("Enter other option");
+        et.setEnabled(false);
+        rb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if(!b){
+                    et.setEnabled(false);
+//                    et.setFocusable(false);
+                }
+                else{
+                    et.setEnabled(true);
+//                    et.setFocusable(true);
+                    et.findFocus();
+                    ((InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE)).showSoftInput(et,0);
+                }
+            }
+        });
+        et.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View view, int i, KeyEvent keyEvent) {
+                if((keyEvent.getAction() == KeyEvent.ACTION_DOWN) && (i == keyEvent.KEYCODE_ENTER)){
+                    ((InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(et.getWindowToken(),0);
+                }
+                return false;
+            }
+        });
             metview.addView(header);
             metview.addView(rg);
+            metview.addView(et);
         Log.d("Peggy","Added a radio group " + rg.getTag());
         }
 }

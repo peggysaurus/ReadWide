@@ -1,6 +1,7 @@
 package com.example.readwide;
 
 import android.app.ActionBar;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
@@ -23,11 +24,13 @@ import androidx.cardview.widget.CardView;
 import android.os.NetworkOnMainThreadException;
 import android.os.Parcelable;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -101,38 +104,54 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
 //                TextView test = findViewById(R.id.testField);
 //                test.setVisibility(TextView.INVISIBLE);
-                clearResults();
-                LinearLayout results = findViewById(R.id.resultsView);
-                ProgressBar prog = new ProgressBar(getApplicationContext());
-                results.addView(prog);
+                searchBook();
+            }
+        });
 
-                Log.d("Peggy", "Search clicked");
-                EditText searchText = findViewById(R.id.searchText);
-                String search = searchText.getText().toString();
-                Log.d("Peggy","Searching for " + search);
-                if (search.equals("")) {
-                    Log.d("Peggy", "Search is empty");
-                } else {
-                while (search.contains(" ")) {
-                    StringBuilder sb = new StringBuilder(search);
-                    sb.setCharAt(search.indexOf(" "), '+');
-                    search = sb.toString();
+        EditText searchBar = findViewById(R.id.searchText);
+        searchBar.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View view, int i, KeyEvent keyEvent) {
+                if((keyEvent.getAction() == KeyEvent.ACTION_DOWN) && (i == keyEvent.KEYCODE_ENTER)){
+                    searchBook();
                 }
-                LibraryInterface oll = new LibraryInterface();
-
-                    try {
-                        Call<SearchResult> call = oll.getBooks(search);
-                        call.enqueue(callBack());
-                    } catch (NetworkOnMainThreadException e) {
-                        Log.d("PeggyNobes", "networkonmainthreadexception going on");
-                    } catch (Exception e) {
-                        Log.d("PeggyNobes", "Other Exception: " + e);
-                    }
-                }
+                return false;
             }
         });
 
     }
+
+    private void searchBook() {
+        clearResults();
+        LinearLayout results = findViewById(R.id.resultsView);
+        ProgressBar prog = new ProgressBar(getApplicationContext());
+        results.addView(prog);
+
+        Log.d("Peggy", "Search clicked");
+        EditText searchText = findViewById(R.id.searchText);
+        String search = searchText.getText().toString();
+        Log.d("Peggy","Searching for " + search);
+        if (search.equals("")) {
+            Log.d("Peggy", "Search is empty");
+        } else {
+            while (search.contains(" ")) {
+                StringBuilder sb = new StringBuilder(search);
+                sb.setCharAt(search.indexOf(" "), '+');
+                search = sb.toString();
+            }
+            LibraryInterface oll = new LibraryInterface();
+
+            try {
+                Call<SearchResult> call = oll.getBooks(search);
+                call.enqueue(callBack());
+            } catch (NetworkOnMainThreadException e) {
+                Log.d("PeggyNobes", "networkonmainthreadexception going on");
+            } catch (Exception e) {
+                Log.d("PeggyNobes", "Other Exception: " + e);
+            }
+        }
+    }
+
 
     public void loadDataView() {
         Log.d("Peggy","Started loadDataView");
