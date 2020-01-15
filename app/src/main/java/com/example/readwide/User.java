@@ -22,7 +22,7 @@ public class User {
     private List<UserMetric> userMetrics = null;
     @SerializedName("read_books")
     @Expose
-    private List<UserBook> userBooks = null;
+    private List<UserBook> userBooks = new ArrayList<>();
 
     public UserId getUserId() {
         return userId;
@@ -61,14 +61,16 @@ public class User {
     }
 
     public boolean addUserBook (Book b, HashMap<String,String> tags){
-        TempBook tBook = new TempBook(b, tags);
+        UserBookRecord tBook = new UserBookRecord(b, tags);
         Gson gson = new Gson();
         if(tBook==null){
             Log.d("Peggy","addBook creating null object???");
             return false;
         }
         String tbjson = gson.toJson(tBook);
+        Log.d("Peggy","tempBook: " + tbjson);
         UserBook uBook = gson.fromJson(tbjson,UserBook.class);
+        Log.d("Peggy","userBook: " + uBook.printBook());
         getUserBooks().add(uBook);
         return true;
     }
@@ -118,21 +120,21 @@ class UserMetric {
 }
 
 class UserBook {
-    @SerializedName("ol_key")
+    @SerializedName("book")
     @Expose
-    private String olKey = null;
+    private Book book = null;
 
     @SerializedName("tags")
     @Expose
     private HashMap<String, String> tags = null;
 
 
-    public String getOlKey() {
-        return olKey;
+    public Book getBook() {
+        return book;
     }
 
-    public void setOlKey(String olKey) {
-        this.olKey = olKey;
+    public void setBook(Book book) {
+        this.book = book;
     }
 
     public HashMap<String, String> getTags() {
@@ -144,39 +146,11 @@ class UserBook {
     }
 
     public String printBook(){
-        String details = "Book: " + getOlKey();
+        String details = "Book: " + book.getTitle();
         for(String key: tags.keySet()){
             details = details + "; " + key + ": " + tags.get(key);
         }
         return details;
-    }
-
-}
-
-class TempBook{
-
-    private String olKey = null;
-
-    private HashMap<String, String> tags = null;
-
-    public TempBook (Book b, HashMap<String,String> tags) {
-        setOlKey(b.getKey());
-        setTags(tags);
-    }
-    public String getOlKey() {
-        return olKey;
-    }
-
-    public void setOlKey(String olKey) {
-        this.olKey = olKey;
-    }
-
-    public HashMap<String, String> getTags() {
-        return tags;
-    }
-
-    public void setTags(HashMap<String, String> tags) {
-        this.tags = tags;
     }
 
 }
