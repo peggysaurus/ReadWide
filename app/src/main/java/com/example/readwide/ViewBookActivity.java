@@ -42,6 +42,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Filters.in;
 
 public class ViewBookActivity extends AppCompatActivity {
 
@@ -119,6 +120,12 @@ public class ViewBookActivity extends AppCompatActivity {
         HashMap<String,String> tags = getTags();
         user.addUserBook(book, tags);
         Log.d("Peggy","Added book: " + user.getUserBooks().get(user.getUserBooks().size()-1).printBook());
+        Intent intent = new Intent(ViewBookActivity.this,MainActivity.class);
+        String userjson = (new Gson()).toJson(user);
+        Log.d("Peggy", "Sending back to Main Activity user: " + userjson);
+        intent.putExtra("user", userjson);
+        intent.putExtra("action", "saveChanges");
+        startActivity(intent);
     }
 
     private HashMap<String, String> getTags() {

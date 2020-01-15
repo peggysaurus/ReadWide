@@ -1,11 +1,14 @@
 package com.example.readwide;
 
+import android.app.ActionBar;
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.gson.Gson;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import com.mongodb.MongoCredential;
@@ -28,6 +31,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.LinearLayout.LayoutParams;
+import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
@@ -57,6 +62,29 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        Intent intent = this.getIntent();
+        String userJson = intent.getStringExtra("user");
+        String action = intent.getStringExtra("action");
+
+        if(action != null || userJson != null){
+            user = (new Gson()).fromJson(userJson, User.class);
+            loadDataView();
+            if(action.equals("saveChanges")){
+                try{
+                    saveChangesToDB();
+                } catch (Exception e){
+                    Log.d("Peggy","SaveChanges error " + e);
+                }
+            }
+        }
+        else {
+            try{
+                connectDB();
+            } catch (Exception e) {
+                Log.d("Peggy","Connection issue " + e);
+            }
+        }
+
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -65,18 +93,19 @@ public class MainActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });
-        try{
-            connectDB();
-        } catch (Exception e) {
-            Log.d("Peggy","Connection issue " + e);
-        }
+
 
         Button searchBtn = findViewById(R.id.searchBtn);
         searchBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                TextView test = findViewById(R.id.testField);
-                test.setVisibility(TextView.INVISIBLE);
+//                TextView test = findViewById(R.id.testField);
+//                test.setVisibility(TextView.INVISIBLE);
+                clearResults();
+                LinearLayout results = findViewById(R.id.resultsView);
+                ProgressBar prog = new ProgressBar(getApplicationContext());
+                results.addView(prog);
+
                 Log.d("Peggy", "Search clicked");
                 EditText searchText = findViewById(R.id.searchText);
                 String search = searchText.getText().toString();
@@ -102,11 +131,55 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
+    }
+
+    public void loadDataView() {
+        Log.d("Peggy","Started loadDataView");
+        LinearLayout container = findViewById(R.id.resultsView);
+        if(user!=null) {
+            int totalRead = user.getUserBooks().size();
+            TextView header = new TextView(this.getApplicationContext());
+            LayoutParams layoutParams = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+            header.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+            header.setTextSize(24);
+            header.setLayoutParams(layoutParams);
+            header.setText("You've read");
+            TextView totalText = new TextView(this.getApplicationContext());
+            totalText.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+            totalText.setTextSize(36);
+            totalText.setTypeface(totalText.getTypeface(), Typeface.BOLD);
+            totalText.setLayoutParams(layoutParams);
+            String totalStr = "" + totalRead;
+            totalText.setText(totalStr);
+            TextView footer = new TextView(this.getApplicationContext());
+            footer.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+            footer.setTextSize(24);
+            footer.setLayoutParams(layoutParams);
+            footer.setText("books so far!");
+
+            container.addView(header);
+            container.addView(totalText);
+            container.addView(footer);
+        }
+        else{
+            Log.d("Peggy","User is null");
+        }
+    }
+
+    private void saveChangesToDB() {
+        String[]args = new String[3];
+        args[0] = "mongodb://10.0.2.2:27017";
+        args[1] = user.getId().get$oid();
+        args[2] = "5e1e3b6d42502e7bbf934466";
+        Log.d("Peggy","Saving changes - user.getId().get$oid() = " + args[1] +" copied =" + args[2]);
+        DBSaver save = new DBSaver(this);
+        save.execute(args);
     }
 
     public void setUser(User u){
         this.user = u;
-        Log.d("Peggy","User set as " + user.getUserName());
+        Log.d("Peggy","User set as " + user.getUserName() + " id = " + user.getId().get$oid());
     }
 
     private void connectDB() {
@@ -129,11 +202,13 @@ public class MainActivity extends AppCompatActivity {
 
     public void afterSearch(List<Book> books){
 //        books = oll.getBooks("unkindness+of+ghosts");
+        clearResults();
         Log.d("PeggyNobes","Got books: " + books.size());
         if(books.isEmpty()){
-            TextView test = findViewById(R.id.testField);
-            test.setVisibility(TextView.VISIBLE);
+            TextView test = new TextView(this.getApplicationContext());
             test.setText("No results found. Please try again");
+            LinearLayout results = findViewById(R.id.resultsView);
+            results.addView(test);
         }
         else if(books.get(0) == null){
             Log.d("PeggyNobes","book is null");
@@ -165,6 +240,10 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    public void clearResults(){
+        LinearLayout results = findViewById(R.id.resultsView);
+        results.removeAllViews();
+    }
     public Callback<SearchResult> callBack() {
         return new Callback<SearchResult>() {
             @Override

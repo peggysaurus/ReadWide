@@ -10,10 +10,12 @@ import com.google.gson.Gson;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import org.bson.types.ObjectId;
+
 public class User {
     @SerializedName("user_id")
     @Expose
-    private UserId userId;
+    private Id id;
     @SerializedName("user_name")
     @Expose
     private String userName;
@@ -24,12 +26,12 @@ public class User {
     @Expose
     private List<UserBook> userBooks = new ArrayList<>();
 
-    public UserId getUserId() {
-        return userId;
+    public Id getId() {
+        return id;
     }
 
-    public void setUserId(UserId userId) {
-        this.userId = userId;
+    public void setId(Id id) {
+        this.id = id;
     }
 
     public String getUserName() {
@@ -76,7 +78,7 @@ public class User {
     }
 }
 
-class UserId {
+class Id {
 
     @SerializedName("$oid")
     @Expose

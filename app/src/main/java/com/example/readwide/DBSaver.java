@@ -4,27 +4,21 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import com.google.gson.Gson;
-import com.mongodb.DBCallback;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import com.mongodb.MongoCredential;
-import com.mongodb.ServerAddress;
-import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 
 import org.bson.Document;
 import org.bson.types.ObjectId;
 
-import java.util.Arrays;
-
 import static com.mongodb.client.model.Filters.eq;
-import static com.mongodb.client.model.Filters.jsonSchema;
 
-public class DBConnection extends AsyncTask<String, Integer, String> {
+public class DBSaver extends AsyncTask<String, Integer, String> {
     MainActivity main;
 
-    public DBConnection(MainActivity main){
+    public DBSaver(MainActivity main){
         this.main = main;
     }
 
@@ -38,17 +32,11 @@ public class DBConnection extends AsyncTask<String, Integer, String> {
 
         MongoDatabase db = mongoClient.getDatabase("readwidedb");
         MongoCollection<Document> collection = db.getCollection("user");
-//        Document userDoc = collection.find(eq("user_name","Test User 1")).first();
-        Document userDoc = collection.find(eq("_id",new ObjectId(strings[1]))).first();
-        Log.d("Peggy",userDoc.toJson());
-        User mainUser = (new Gson()).fromJson(userDoc.toJson(), User.class);
-        main.setUser(mainUser);
-        return userDoc.toJson();
-    }
+        Document userDoc = Document.parse((new Gson()).toJson(main.user));
+        userDoc.getObjectId(new ObjectId(main.user.getId().get$oid()));
 
-    @Override
-    protected void onPostExecute(String s) {
-        main.loadDataView();
-        super.onPostExecute(s);
+        collection.replaceOne(eq("user_id",new ObjectId(main.user.getId().get$oid())),userDoc);
+        Log.d("Peggy","Completed save to db as " + userDoc);
+        return "Changes saved";
     }
 }
