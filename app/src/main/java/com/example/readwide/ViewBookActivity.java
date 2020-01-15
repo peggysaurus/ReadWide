@@ -51,6 +51,7 @@ public class ViewBookActivity extends AppCompatActivity {
     MongoCredential cred = MongoCredential.createCredential("admin", "readwidedb", "readwideadmin".toCharArray());
 
     Book book;
+    User user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,7 +69,7 @@ public class ViewBookActivity extends AppCompatActivity {
         String key = intent.getStringExtra("key");
         String bookJson = intent.getStringExtra("book");
         String userJson = intent.getStringExtra("user");
-        final User user = (new Gson()).fromJson(userJson, User.class);
+        user = (new Gson()).fromJson(userJson, User.class);
         if (!bookJson.equals("")) {
             book = (new Gson()).fromJson(bookJson, Book.class);
             loadDetails();
@@ -105,30 +106,36 @@ public class ViewBookActivity extends AppCompatActivity {
             }
         });
         loadMetricOptions(user);
-//        Button saveBtn = findViewById(R.id.saveBookBtn);
-//        saveBtn.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                HashMap<String,String> tags = getTags();
-//                user.addUserBook(book, tags);
-//                Log.d("Peggy","Added book: " + user.getUserBooks().get(user.getUserBooks().size()-1).printBook());
-//            }
-//        });
+        Button saveBtn = findViewById(R.id.saveBookBtn);
+        saveBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                addUserBook();
+            }
+        });
+    }
+
+    private void addUserBook(){
+        HashMap<String,String> tags = getTags();
+        user.addUserBook(book, tags);
+        Log.d("Peggy","Added book: " + user.getUserBooks().get(user.getUserBooks().size()-1).printBook());
     }
 
     private HashMap<String, String> getTags() {
         HashMap<String, String> tags = new HashMap<>();
-//        for(int x = 1000; x<rgId; x++){
-//            RadioGroup rg = findViewById();
-//            if(rg != null){
-//                RadioButton rb = findViewById(rg.getCheckedRadioButtonId());
-//                String key = rg.getTag().toString();
-//                if(rb != null){
-//                    String tag = rb.getText().toString();
-//                    tags.put(key,tag);
-//                }
-//            }
-//        }
+        LinearLayout metview = findViewById(R.id.setMetricsView);
+        for(int i = 0; i < metview.getChildCount(); i++){
+            View child = metview.getChildAt(i);
+            if(child instanceof RadioGroup){
+                RadioGroup rg = (RadioGroup) child;
+                RadioButton rb = findViewById(rg.getCheckedRadioButtonId());
+                String key = rg.getTag().toString();
+                if(rb != null){
+                    String tag = rb.getText().toString();
+                    tags.put(key,tag);
+                }
+            }
+        }
         return tags;
     }
 
@@ -175,7 +182,7 @@ public class ViewBookActivity extends AppCompatActivity {
             header.setText("Define book " + key);
             RadioGroup rg = new RadioGroup(this.getApplicationContext());
             rg.setTag(key);
-            header.setLabelFor(rg.getId());
+//            header.setLabelFor(rg.getId());
             for (int j = 0; j < met.getList(key).size(); j++) {
                 RadioButton rb = new RadioButton(this.getApplicationContext());
                 rb.setText(met.getList(key).get(j));

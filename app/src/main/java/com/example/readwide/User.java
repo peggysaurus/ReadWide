@@ -1,5 +1,7 @@
 package com.example.readwide;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -59,7 +61,16 @@ public class User {
     }
 
     public boolean addUserBook (Book b, HashMap<String,String> tags){
-        return getUserBooks().add(new UserBook(b, tags));
+        TempBook tBook = new TempBook(b, tags);
+        Gson gson = new Gson();
+        if(tBook==null){
+            Log.d("Peggy","addBook creating null object???");
+            return false;
+        }
+        String tbjson = gson.toJson(tBook);
+        UserBook uBook = gson.fromJson(tbjson,UserBook.class);
+        getUserBooks().add(uBook);
+        return true;
     }
 }
 
@@ -140,8 +151,32 @@ class UserBook {
         return details;
     }
 
-    public UserBook(Book b, HashMap<String,String> tags){
+}
+
+class TempBook{
+
+    private String olKey = null;
+
+    private HashMap<String, String> tags = null;
+
+    public TempBook (Book b, HashMap<String,String> tags) {
         setOlKey(b.getKey());
         setTags(tags);
     }
+    public String getOlKey() {
+        return olKey;
+    }
+
+    public void setOlKey(String olKey) {
+        this.olKey = olKey;
+    }
+
+    public HashMap<String, String> getTags() {
+        return tags;
+    }
+
+    public void setTags(HashMap<String, String> tags) {
+        this.tags = tags;
+    }
+
 }
