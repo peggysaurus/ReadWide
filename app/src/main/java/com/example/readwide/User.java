@@ -5,6 +5,7 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.google.gson.Gson;
 import com.google.gson.annotations.Expose;
@@ -83,6 +84,32 @@ public class User {
         List<UserMetric> userMetrics = new ArrayList<>();
         userMetrics.add((new Gson()).fromJson(interpretor.getMapAsJson(), UserMetric.class));
         setUserMetrics(userMetrics);
+    }
+
+    public Map<String,Map<String,Integer>> getAllCounts(){
+        Map<String,Map<String,Integer>> allCounts = new HashMap<>();
+        MetricInterpretor interpretor = getMetricInt();
+        for(String key : interpretor.metrics.keySet()){
+            allCounts.put(key,getCount(key));
+        }
+        return allCounts;
+    }
+
+    public Map<String,Integer> getCount(String key){
+        List<String> options = getMetricInt().metrics.get(key);
+        Map<String,Integer> counts = new HashMap<>();
+        for (String option: options) {
+            int count = 0;
+            List<UserBook> ubooks = getUserBooks();
+            for (UserBook b : ubooks) {
+                String tag = b.getTags().get(key);
+                if(tag.equals(option)){
+                    count++;
+                }
+            }
+            counts.put(option, count);
+        }
+        return counts;
     }
 }
 

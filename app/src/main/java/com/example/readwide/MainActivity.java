@@ -1,56 +1,39 @@
 package com.example.readwide;
 
-import android.app.ActionBar;
-import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.Typeface;
-import android.os.AsyncTask;
 import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.gson.Gson;
-import com.mongodb.MongoClient;
-import com.mongodb.MongoClientURI;
-import com.mongodb.MongoCredential;
-import com.mongodb.ServerAddress;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.cardview.widget.CardView;
 
 import android.os.NetworkOnMainThreadException;
-import android.os.Parcelable;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.ProgressBar;
-import android.widget.ScrollView;
 import android.widget.TextView;
 
-import org.bson.Document;
-import org.json.JSONException;
-import org.w3c.dom.Text;
-
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
-import io.reactivex.Completable;
-import io.reactivex.Observable;
-import io.reactivex.Single;
+import lecho.lib.hellocharts.model.PieChartData;
+import lecho.lib.hellocharts.model.SliceValue;
+import lecho.lib.hellocharts.view.PieChartView;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -99,6 +82,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         Button searchBtn = findViewById(R.id.searchBtn);
+        searchBtn.findFocus();
         searchBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -109,6 +93,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         EditText searchBar = findViewById(R.id.searchText);
+
         searchBar.setOnKeyListener(new View.OnKeyListener() {
             @Override
             public boolean onKey(View view, int i, KeyEvent keyEvent) {
@@ -180,6 +165,7 @@ public class MainActivity extends AppCompatActivity {
             container.addView(header);
             container.addView(totalText);
             container.addView(footer);
+            showStats();
         }
         else{
             Log.d("Peggy","User is null");
@@ -208,6 +194,45 @@ public class MainActivity extends AppCompatActivity {
         args[1] = "5e1e3b6d42502e7bbf934466";
         DBConnection conn = new DBConnection(this);
         conn.execute(args);
+    }
+
+    public void showStats(){
+        Map<String, Map<String, Integer>> counts = user.getAllCounts();
+        for (String key : counts.keySet()){
+            showStatsOne(key,counts.get(key));
+        }
+    }
+
+    public void showStatsOne(String key, Map<String, Integer> count){
+        List<Integer> colors = getRandomColors();
+        LinearLayout results = findViewById(R.id.resultsView);
+        LayoutInflater inflater = getLayoutInflater();
+        View statsView = inflater.inflate(R.layout.stats_card, null);
+        TextView statsHeader = statsView.findViewById(R.id.statsHeader);
+        statsHeader.setText(key);
+        PieChartView pieChartView = statsView.findViewById(R.id.chart);
+        if(pieChartView==null){
+            Log.d("PeggyCharts","null object");
+        }
+        List<SliceValue> pieData = new ArrayList<>();
+        int i = 0;
+        for(String value : count.keySet()){
+            pieData.add(new SliceValue(count.get(value), colors.get(i)).setLabel(value));
+            i++;
+        }
+        PieChartData pieChartData = new PieChartData(pieData);
+        pieChartData.setHasLabels(true);
+        pieChartView.setPieChartData(pieChartData);
+        results.addView(statsView);
+    }
+
+    private List<Integer> getRandomColors() {
+        List<Integer> colors = new ArrayList<>();
+        Random rnd = new Random();
+        for (int i = 0; i < 10; i++){
+            colors.add(Color.argb( 255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256)));
+        }
+        return colors;
     }
 
     private void displayResutls(List<Book> books) {
