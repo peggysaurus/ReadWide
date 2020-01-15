@@ -58,7 +58,8 @@
                     android:id="@+id/testField"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text=" Nochange" />
+                    android:text=" Nochange"
+                    android:visibility="invisible" />
             </LinearLayout>
         </ScrollView>
 

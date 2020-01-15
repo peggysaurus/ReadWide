@@ -75,6 +75,8 @@ public class MainActivity extends AppCompatActivity {
         searchBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                TextView test = findViewById(R.id.testField);
+                test.setVisibility(TextView.INVISIBLE);
                 Log.d("Peggy", "Search clicked");
                 EditText searchText = findViewById(R.id.searchText);
                 String search = searchText.getText().toString();
@@ -130,6 +132,7 @@ public class MainActivity extends AppCompatActivity {
         Log.d("PeggyNobes","Got books: " + books.size());
         if(books.isEmpty()){
             TextView test = findViewById(R.id.testField);
+            test.setVisibility(TextView.VISIBLE);
             test.setText("No results found. Please try again");
         }
         else if(books.get(0) == null){

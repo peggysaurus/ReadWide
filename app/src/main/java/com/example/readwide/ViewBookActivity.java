@@ -20,8 +20,10 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import android.os.Parcelable;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
@@ -31,7 +33,9 @@ import android.widget.TextView;
 import org.bson.Document;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -64,7 +68,7 @@ public class ViewBookActivity extends AppCompatActivity {
         String key = intent.getStringExtra("key");
         String bookJson = intent.getStringExtra("book");
         String userJson = intent.getStringExtra("user");
-        User user = (new Gson()).fromJson(userJson, User.class);
+        final User user = (new Gson()).fromJson(userJson, User.class);
         if (!bookJson.equals("")) {
             book = (new Gson()).fromJson(bookJson, Book.class);
             loadDetails();
@@ -101,6 +105,31 @@ public class ViewBookActivity extends AppCompatActivity {
             }
         });
         loadMetricOptions(user);
+//        Button saveBtn = findViewById(R.id.saveBookBtn);
+//        saveBtn.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                HashMap<String,String> tags = getTags();
+//                user.addUserBook(book, tags);
+//                Log.d("Peggy","Added book: " + user.getUserBooks().get(user.getUserBooks().size()-1).printBook());
+//            }
+//        });
+    }
+
+    private HashMap<String, String> getTags() {
+        HashMap<String, String> tags = new HashMap<>();
+//        for(int x = 1000; x<rgId; x++){
+//            RadioGroup rg = findViewById();
+//            if(rg != null){
+//                RadioButton rb = findViewById(rg.getCheckedRadioButtonId());
+//                String key = rg.getTag().toString();
+//                if(rb != null){
+//                    String tag = rb.getText().toString();
+//                    tags.put(key,tag);
+//                }
+//            }
+//        }
+        return tags;
     }
 
     private void connectDB() {
@@ -111,7 +140,6 @@ public class ViewBookActivity extends AppCompatActivity {
     }
 
     private void loadDetails() {
-        //TODO fill in the fields with the book info
         TextView title = findViewById(R.id.bookTitle);
         TextView author = findViewById(R.id.author);
         ImageView cover = findViewById(R.id.bookCover);
@@ -140,10 +168,13 @@ public class ViewBookActivity extends AppCompatActivity {
         }
     }
 
+
     private void addRagioGroup(LinearLayout metview, MetricInterpretor met, String key) {
+
             TextView header = new TextView(this.getApplicationContext());
             header.setText("Define book " + key);
             RadioGroup rg = new RadioGroup(this.getApplicationContext());
+            rg.setTag(key);
             header.setLabelFor(rg.getId());
             for (int j = 0; j < met.getList(key).size(); j++) {
                 RadioButton rb = new RadioButton(this.getApplicationContext());
@@ -152,5 +183,6 @@ public class ViewBookActivity extends AppCompatActivity {
             }
             metview.addView(header);
             metview.addView(rg);
+        Log.d("Peggy","Added a radio group " + rg.getTag());
         }
 }

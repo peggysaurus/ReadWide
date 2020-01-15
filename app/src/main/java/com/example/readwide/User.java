@@ -1,5 +1,7 @@
 package com.example.readwide;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import com.google.gson.Gson;
@@ -16,6 +18,9 @@ public class User {
     @SerializedName("user_metrics")
     @Expose
     private List<UserMetric> userMetrics = null;
+    @SerializedName("read_books")
+    @Expose
+    private List<UserBook> userBooks = null;
 
     public UserId getUserId() {
         return userId;
@@ -41,10 +46,21 @@ public class User {
         this.userMetrics = userMetrics;
     }
 
+    public List<UserBook> getUserBooks() {
+        return userBooks;
+    }
+
+    public void setUserBooks(List<UserBook> userBooks) {
+        this.userBooks = userBooks;
+    }
+
     public MetricInterpretor getMetricInt(){
         return new MetricInterpretor((new Gson()).toJson(getUserMetrics()));
     }
 
+    public boolean addUserBook (Book b, HashMap<String,String> tags){
+        return getUserBooks().add(new UserBook(b, tags));
+    }
 }
 
 class UserId {
@@ -88,4 +104,44 @@ class UserMetric {
         this.length = length;
     }
 
+}
+
+class UserBook {
+    @SerializedName("ol_key")
+    @Expose
+    private String olKey = null;
+
+    @SerializedName("tags")
+    @Expose
+    private HashMap<String, String> tags = null;
+
+
+    public String getOlKey() {
+        return olKey;
+    }
+
+    public void setOlKey(String olKey) {
+        this.olKey = olKey;
+    }
+
+    public HashMap<String, String> getTags() {
+        return tags;
+    }
+
+    public void setTags(HashMap<String, String> tags) {
+        this.tags = tags;
+    }
+
+    public String printBook(){
+        String details = "Book: " + getOlKey();
+        for(String key: tags.keySet()){
+            details = details + "; " + key + ": " + tags.get(key);
+        }
+        return details;
+    }
+
+    public UserBook(Book b, HashMap<String,String> tags){
+        setOlKey(b.getKey());
+        setTags(tags);
+    }
 }
