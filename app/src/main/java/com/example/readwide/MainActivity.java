@@ -6,12 +6,19 @@ import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+import com.mongodb.MongoClient;
+import com.mongodb.MongoClientURI;
+import com.mongodb.MongoCredential;
+import com.mongodb.ServerAddress;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
 
 import android.os.NetworkOnMainThreadException;
+import android.os.Parcelable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,11 +31,13 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import org.bson.Document;
 import org.json.JSONException;
 import org.w3c.dom.Text;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import io.reactivex.Completable;
@@ -39,6 +48,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
+    public User user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +65,11 @@ public class MainActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });
+        try{
+            connectDB();
+        } catch (Exception e) {
+            Log.d("Peggy","Connection issue " + e);
+        }
 
         Button searchBtn = findViewById(R.id.searchBtn);
         searchBtn.setOnClickListener(new View.OnClickListener() {
@@ -75,26 +90,8 @@ public class MainActivity extends AppCompatActivity {
                 LibraryInterface oll = new LibraryInterface();
 
                     try {
-                        //                    oll.execute(search);
-                        //                    Log.d("PeggyNobes","" +books.get().size());
-                        //                    List<Book> books = new ArrayList<>();
-
                         Call<SearchResult> call = oll.getBooks(search);
                         call.enqueue(callBack());
-                        //                    Log.d("Peggy","OLL Working:" + oll.working);
-                        //                    boolean wait = oll.working;
-                        //                    TextView test = findViewById(R.id.testField);
-                        //                    while (wait){
-                        //                        test.setText("do something");
-                        //                        wait = oll.working;
-                        //                        Log.d("Peggy","OLL Working:" + wait);
-                        //                    }
-                        //                    afterSearch(books);
-                        //
-                        //                } catch (JSONException e){
-                        //                    Log.d("PeggyNobes","Search click throws JSONexception");
-                        //                } catch (IOException ex){
-                        //                    Log.d("PeggyNobes","Search click throws IOException");
                     } catch (NetworkOnMainThreadException e) {
                         Log.d("PeggyNobes", "networkonmainthreadexception going on");
                     } catch (Exception e) {
@@ -105,11 +102,25 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    public void setUser(User u){
+        this.user = u;
+        Log.d("Peggy","User set as " + user.getUserName());
+    }
+
+    private void connectDB() {
+//        MongoClientOptions options = MongoClientOptions.builder().sslEnabled(true).build();
+        String[]args = new String[2];
+        args[0] = "mongodb://10.0.2.2:27017";
+        args[1] = "5e1e3b6d42502e7bbf934466";
+        DBConnection conn = new DBConnection(this);
+        conn.execute(args);
+    }
+
     private void displayResutls(List<Book> books) {
         LinearLayout results = findViewById(R.id.resultsView);
         LayoutInflater inflater = getLayoutInflater();
         for (Book b : books){
-            results.addView(b.getSmallView(inflater, this.getApplicationContext(), new Intent(MainActivity.this, ViewBookActivity.class)));
+            results.addView(b.getSmallView(inflater, this.getApplicationContext(), new Intent(MainActivity.this, ViewBookActivity.class),user));
         }
 
     }
@@ -117,13 +128,16 @@ public class MainActivity extends AppCompatActivity {
     public void afterSearch(List<Book> books){
 //        books = oll.getBooks("unkindness+of+ghosts");
         Log.d("PeggyNobes","Got books: " + books.size());
-        if(books.get(0) == null){
+        if(books.isEmpty()){
+            TextView test = findViewById(R.id.testField);
+            test.setText("No results found. Please try again");
+        }
+        else if(books.get(0) == null){
             Log.d("PeggyNobes","book is null");
         }
-
-        TextView test = findViewById(R.id.testField);
-        test.setText(books.get(0).getTitle());
-        displayResutls(books);
+        else{
+            displayResutls(books);
+        }
     }
 
     @Override

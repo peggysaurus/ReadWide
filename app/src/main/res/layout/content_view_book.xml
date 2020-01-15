@@ -14,7 +14,7 @@
         android:layout_height="0dp"
         android:layout_marginTop="16dp"
         android:layout_marginBottom="16dp"
-        app:layout_constraintBottom_toTopOf="@+id/linearLayout"
+        app:layout_constraintBottom_toTopOf="@+id/setMetricsView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -62,11 +62,11 @@
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/linearLayout"
+        android:id="@+id/setMetricsView"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:orientation="vertical"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/saveBookBtn"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/linearLayout2">
@@ -80,71 +80,15 @@
             android:textSize="24sp"
             android:textStyle="bold" />
 
-        <TextView
-            android:id="@+id/tag1Header"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:labelFor="@id/Tag1"
-            android:text="Set Tag1" />
-
-        <RadioGroup
-            android:id="@+id/Tag1"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:labelFor="@id/tag1Header">
-
-            <RadioButton
-                android:id="@+id/radioButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="RadioButton" />
-
-            <RadioButton
-                android:id="@+id/radioButton2"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="RadioButton" />
-
-            <RadioButton
-                android:id="@+id/radioButton3"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="RadioButton" />
-
-        </RadioGroup>
-
-        <TextView
-            android:id="@+id/tag2Header"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:labelFor="@id/Tag2"
-            android:text="Set Tag2" />
-
-        <RadioGroup
-            android:id="@+id/Tag2"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:labelFor="@id/tag1Header">
-
-            <RadioButton
-                android:id="@+id/radioButton4"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="RadioButton" />
-
-            <RadioButton
-                android:id="@+id/radioButton5"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="RadioButton" />
-
-            <RadioButton
-                android:id="@+id/radioButton6"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="RadioButton" />
-
-        </RadioGroup>
-
     </LinearLayout>
+
+    <Button
+        android:id="@+id/saveBookBtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Save Book"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
