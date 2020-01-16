@@ -208,8 +208,8 @@ public class MainActivity extends AppCompatActivity {
         LinearLayout results = findViewById(R.id.resultsView);
         LayoutInflater inflater = getLayoutInflater();
         View statsView = inflater.inflate(R.layout.stats_card, null);
-        TextView statsHeader = statsView.findViewById(R.id.statsHeader);
-        statsHeader.setText(key);
+//        TextView statsHeader = statsView.findViewById(R.id.statsHeader);
+//        statsHeader.setText(key);
         PieChartView pieChartView = statsView.findViewById(R.id.chart);
         if(pieChartView==null){
             Log.d("PeggyCharts","null object");
@@ -217,11 +217,14 @@ public class MainActivity extends AppCompatActivity {
         List<SliceValue> pieData = new ArrayList<>();
         int i = 0;
         for(String value : count.keySet()){
-            pieData.add(new SliceValue(count.get(value), colors.get(i)).setLabel(value));
-            i++;
+            if(count.get(value)>0) {
+                pieData.add(new SliceValue(count.get(value), colors.get(i)).setLabel(value));
+                i++;
+            }
         }
         PieChartData pieChartData = new PieChartData(pieData);
         pieChartData.setHasLabels(true);
+        pieChartData.setHasCenterCircle(true).setCenterText1(key).setCenterText1FontSize(20);
         pieChartView.setPieChartData(pieChartData);
         results.addView(statsView);
     }

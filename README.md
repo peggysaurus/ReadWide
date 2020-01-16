@@ -9,11 +9,11 @@ A user should be able to compare the books they've read for different time perio
 
 
  -- Tech Stack --
-The application itself is built with Android in Java, with a MongoDB database. This is supported by several additional libraries including.
-retrofit, rxjava, Gson, Jackson, Picasso
+The application itself is built with Android in Java, from Android 7.0 Nougat. It connects with a MongoDB v4.1.10 database and is supported by several additional libraries including:
 - To find books, the application accesses the openlibrary.org RESTful API using retrofit
 - Information is transferred in json format and converted using both Gson and Jackson libraries depending on the object required. Specifically, Jackson is used to convert json to HashMaps and back, while Gson is used for everything else.
 - Cover images are loaded from URL using Picasso
 - Some threading is managed with rxjava
+- Charts are made using hellocharts
 
 
