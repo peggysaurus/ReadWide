@@ -5,19 +5,29 @@ import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
 
+import com.google.android.gms.tasks.Continuation;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.gson.Gson;
-import com.mongodb.MongoClient;
-import com.mongodb.MongoClientOptions;
-import com.mongodb.MongoClientURI;
-import com.mongodb.MongoCredential;
-import com.mongodb.ServerAddress;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoCursor;
-import com.mongodb.client.MongoDatabase;
+//import com.mongodb.MongoClient;
+//import com.mongodb.MongoClientOptions;
+//import com.mongodb.MongoClientURI;
+//import com.mongodb.MongoCredential;
+//import com.mongodb.ServerAddress;
+//import com.mongodb.client.MongoCollection;
+//import com.mongodb.client.MongoCursor;
+//import com.mongodb.client.MongoDatabase;
+import com.mongodb.stitch.android.core.Stitch;
+import com.mongodb.stitch.android.core.StitchAppClient;
+import com.mongodb.stitch.android.core.auth.StitchUser;
+import com.mongodb.stitch.android.services.mongodb.remote.RemoteMongoClient;
+import com.mongodb.stitch.android.services.mongodb.remote.RemoteMongoCollection;
+import com.mongodb.stitch.core.auth.providers.anonymous.AnonymousCredential;
 import com.squareup.picasso.Picasso;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -41,6 +51,7 @@ import android.widget.TextView;
 
 import org.bson.Document;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -50,15 +61,8 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-import static com.mongodb.client.model.Filters.eq;
-import static com.mongodb.client.model.Filters.in;
 
 public class ViewBookActivity extends AppCompatActivity {
-
-    //    MongoClientURI connectionString = new MongoClientURI("mongodb://localhost:27017");
-    MongoClient mongoClient;
-    MongoCollection<Document> collection;
-    MongoCredential cred = MongoCredential.createCredential("admin", "readwidedb", "readwideadmin".toCharArray());
 
     Book book;
     User user;
@@ -69,11 +73,7 @@ public class ViewBookActivity extends AppCompatActivity {
         setContentView(R.layout.activity_view_book);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        try {
-            connectDB();
-        } catch (Exception e) {
-            Log.e("Peggy", "Connection failed: " + e);
-        }
+
 
         Intent intent = this.getIntent();
         String key = intent.getStringExtra("key");
@@ -173,13 +173,6 @@ public class ViewBookActivity extends AppCompatActivity {
         return tags;
     }
 
-    private void connectDB() {
-//        MongoClientOptions options = MongoClientOptions.builder().sslEnabled(true).build();
-        mongoClient = new MongoClient("mongodb://localhost:27017");
-
-        collection = mongoClient.getDatabase("readwidedb").getCollection("user");
-    }
-
     private void loadDetails() {
         TextView title = findViewById(R.id.bookTitle);
         TextView author = findViewById(R.id.author);
@@ -216,8 +209,6 @@ public class ViewBookActivity extends AppCompatActivity {
             imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
         }
     }
-
-
 
 
     private void addRagioGroup(LinearLayout metview, MetricInterpretor met, String key) {

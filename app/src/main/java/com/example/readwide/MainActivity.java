@@ -5,10 +5,22 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
 
+import com.google.android.gms.tasks.Continuation;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.gson.Gson;
+import com.mongodb.stitch.android.core.Stitch;
+import com.mongodb.stitch.android.core.StitchAppClient;
+import com.mongodb.stitch.android.core.auth.StitchUser;
+import com.mongodb.stitch.android.services.mongodb.remote.RemoteMongoClient;
+import com.mongodb.stitch.android.services.mongodb.remote.RemoteMongoCollection;
+import com.mongodb.stitch.core.auth.providers.anonymous.AnonymousCredential;
+import com.mongodb.stitch.core.services.mongodb.remote.RemoteUpdateOptions;
+import com.mongodb.stitch.core.services.mongodb.remote.RemoteUpdateResult;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
@@ -16,9 +28,9 @@ import android.os.NetworkOnMainThreadException;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
@@ -26,6 +38,8 @@ import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
+import org.bson.Document;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,9 +55,18 @@ import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
     public User user;
+    private StitchAppClient client = null;
+
+    private RemoteMongoClient mongoClient;
+
+    private RemoteMongoCollection<Document> coll;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        client = Stitch.getDefaultAppClient();
+        mongoClient = client.getServiceClient(RemoteMongoClient.factory, "mongodb-atlas");
+        coll = mongoClient.getDatabase("readwidedb").getCollection("user");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -58,7 +81,8 @@ public class MainActivity extends AppCompatActivity {
             loadDataView();
             if(action.equals("saveChanges")){
                 try{
-                    saveChangesToDB();
+//                    saveChangesToDB();
+                    saveStitch();
                 } catch (Exception e){
                     Log.d("Peggy","SaveChanges error " + e);
                 }
@@ -66,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
         }
         else {
             try{
-                connectDB();
+//                connectDB();
             } catch (Exception e) {
                 Log.d("Peggy","Connection issue " + e);
             }
@@ -94,7 +118,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         EditText searchBar = findViewById(R.id.searchText);
-
         searchBar.setOnKeyListener(new View.OnKeyListener() {
             @Override
             public boolean onKey(View view, int i, KeyEvent keyEvent) {
@@ -105,6 +128,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+        tryStitch();
     }
 
     private void searchBook() {
@@ -136,6 +160,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("PeggyNobes", "Other Exception: " + e);
             }
         }
+        this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
     }
 
 
@@ -173,28 +198,118 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private  void tryStitch(){
+        client.getAuth().loginWithCredential(new AnonymousCredential()).continueWithTask(
+                new Continuation<StitchUser, Task<List<Document>>>() {
+
+                    @Override
+                    public Task<List<Document>> then(@NonNull Task<StitchUser> task) throws Exception {
+                        if (!task.isSuccessful()) {
+                            Log.e("STITCH", "Login failed!");
+                            throw task.getException();
+                        }
+                        List<Document> docs = new ArrayList<>();
+                        return coll
+                                .find(new Document("user_id", client.getAuth().getUser().getId()))
+                                .limit(100)
+                                .into(docs);
+                    }
+                }
+        ).addOnCompleteListener(new OnCompleteListener<List<Document>>() {
+            @Override
+            public void onComplete(@NonNull Task<List<Document>> task) {
+                if (task.isSuccessful()) {
+                    for(Document doc : task.getResult()){
+                        String json = doc.toJson();
+                        Log.d("STITCH", "Found docs: " + json);
+                        if(json.contains("user_metrics")) {
+                            User u = (new Gson()).fromJson(json, User.class);
+                            setUser(u);
+                        }
+                    }
+                    if(user == null){
+                        User u = new User();
+                        u.setId(client.getAuth().getUser().getId());
+                        u.setUserMetrics(getStandardMetrics());
+                        setUser(u);
+                    }
+                    loadDataView();
+                    return;
+                }
+                Log.e("STITCH", "Error: " + task.getException().toString());
+                task.getException().printStackTrace();
+            }
+        });
+    }
+
+    private  void saveStitch(){
+
+        Document filterDoc = new Document().append("type","AppRecord");
+        filterDoc.append("user_id",client.getAuth().getUser().getId());
+        Document userDoc = Document.parse((new Gson()).toJson(user));
+        RemoteUpdateOptions options = new RemoteUpdateOptions().upsert(true);
+
+        final Task<RemoteUpdateResult> updateTask = coll.updateOne(filterDoc,userDoc, options);
+
+        updateTask.addOnCompleteListener(new OnCompleteListener <RemoteUpdateResult> () {
+            @Override
+            public void onComplete(@NonNull Task <RemoteUpdateResult> task) {
+                if (task.isSuccessful()) {
+                    if (task.getResult().getUpsertedId() != null) {
+                        String upsertedId = task.getResult().getUpsertedId().toString();
+                        Log.d("STITCH", String.format("successfully upserted document with id: %s",
+                                upsertedId));
+                    } else {
+                        long numMatched = task.getResult().getMatchedCount();
+                        long numModified = task.getResult().getModifiedCount();
+                        Log.d("STITCH", String.format("successfully matched %d and modified %d documents",
+                                numMatched, numModified));
+                    }
+                } else {
+                    Log.e("app", "failed to update document with: ", task.getException());
+                }
+            }
+        });
+    }
+
+    private List<UserMetric> getStandardMetrics(){
+        List <UserMetric> metrics = new ArrayList<>();
+        UserMetric um1 = new UserMetric();
+        um1.setGenre(new ArrayList<>());
+        UserMetric um2 = new UserMetric();
+        um1.setLength(new ArrayList<>());
+        metrics.add(um1);
+        metrics.add(um2);
+        return metrics;
+    }
+
     private void saveChangesToDB() {
         String[]args = new String[3];
-        args[0] = "mongodb://10.0.2.2:27017";
-        args[1] = user.getId().get$oid();
+//        args[0] = "mongodb+srv://ReadWideUser:RWpassJan2020@readwide2020-1x8dq.mongodb.net/test?retryWrites=true&w=majority";
+//        args[0] = "mongodb://ReadWideUser:RWpassJan2020@readwide2020-shard-00-00-1x8dq.mongodb.net:27017,readwide2020-shard-00-01-1x8dq.mongodb.net:27017,readwide2020-shard-00-02-1x8dq.mongodb.net:27017/test?ssl=true&replicaSet=ReadWide2020-shard-0&authSource=admin&retryWrites=true&w=majority";
+        args[0] = "mongodb://ReadWideUser:RWpassJan2020@readwide2020-shard-00-00-1x8dq.mongodb.net:27017,readwide2020-shard-00-01-1x8dq.mongodb.net:27017,readwide2020-shard-00-02-1x8dq.mongodb.net:27017/test?ssl=true&replicaSet=ReadWide2020-shard-0&authSource=admin&retryWrites=true&w=majority";
+        args[1] = user.getId();
         args[2] = "5e1e3b6d42502e7bbf934466";
         Log.d("Peggy","Saving changes - user.getId().get$oid() = " + args[1] +" copied =" + args[2]);
-        DBSaver save = new DBSaver(this);
-        save.execute(args);
+//        DBSaver save = new DBSaver(this);
+//        save.execute(args);
     }
 
     public void setUser(User u){
         this.user = u;
-        Log.d("Peggy","User set as " + user.getUserName() + " id = " + user.getId().get$oid());
+        Log.d("Peggy","User set as " + user.getUserName() + " id = " + user.getId());
     }
 
     private void connectDB() {
 //        MongoClientOptions options = MongoClientOptions.builder().sslEnabled(true).build();
         String[]args = new String[2];
-        args[0] = "mongodb://10.0.2.2:27017";
+        args[0] = "mongodb+srv://ReadWideUser:RWpassJan2020@readwide2020-1x8dq.mongodb.net/test?retryWrites=true&w=majority";
+//        args[0] = "mongodb://ReadWideUser:RWpassJan2020@readwide2020-shard-00-00-1x8dq.mongodb.net:27017,readwide2020-shard-00-01-1x8dq.mongodb.net:27017,readwide2020-shard-00-02-1x8dq.mongodb.net:27017/test?ssl=true&replicaSet=ReadWide2020-shard-0&authSource=admin&retryWrites=true&w=majority";
+//        args[0] = "mongodb://ReadWideUser:RWpassJan2020@readwide2020-shard-00-00-1x8dq.mongodb.net:27017,readwide2020-shard-00-01-1x8dq.mongodb.net:27017,readwide2020-shard-00-02-1x8dq.mongodb.net:27017/test?ssl=true&replicaSet=ReadWide2020-shard-0&authSource=admin&retryWrites=true&w=majority";
+
         args[1] = "5e1e3b6d42502e7bbf934466";
-        DBConnection conn = new DBConnection(this);
-        conn.execute(args);
+//        DBConnection conn = new DBConnection(this);
+//        conn.execute(args);
     }
 
     public void showStats(){

@@ -14,9 +14,20 @@ import com.google.gson.annotations.SerializedName;
 import org.bson.types.ObjectId;
 
 public class User {
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    @SerializedName("type")
+    @Expose
+    private String type = "AppRecord";
     @SerializedName("user_id")
     @Expose
-    private Id id;
+    private String id;
     @SerializedName("user_name")
     @Expose
     private String userName;
@@ -27,11 +38,11 @@ public class User {
     @Expose
     private List<UserBook> userBooks = new ArrayList<>();
 
-    public Id getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Id id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -130,13 +141,14 @@ class Id {
 }
 
 class UserMetric {
-
+//TODO make metrics more flexible
     @SerializedName("genre")
     @Expose
     private List<String> genre = null;
     @SerializedName("length")
     @Expose
     private List<String> length = null;
+
 
     public List<String> getGenre() {
         return genre;
