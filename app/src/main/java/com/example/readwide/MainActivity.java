@@ -191,7 +191,9 @@ public class MainActivity extends AppCompatActivity {
             container.addView(header);
             container.addView(totalText);
             container.addView(footer);
-            showStats();
+            if(totalRead>0) {
+                showStats();
+            }
         }
         else{
             Log.d("Peggy","User is null");
@@ -276,9 +278,15 @@ public class MainActivity extends AppCompatActivity {
         //TODO Fix this so it doesn't have empty radio buttons
         List <UserMetric> metrics = new ArrayList<>();
         UserMetric um1 = new UserMetric();
-        um1.setGenre(new ArrayList<>());
+        ArrayList<String> genres = new ArrayList<>();
+        genres.add("romance");
+        genres.add("sci-fi");
+        um1.setGenre(genres);
+        ArrayList<String> lengths = new ArrayList<>();
+        lengths.add("short");
+        lengths.add("medium");
         UserMetric um2 = new UserMetric();
-        um1.setLength(new ArrayList<>());
+        um1.setLength(lengths);
         metrics.add(um1);
         metrics.add(um2);
         return metrics;
@@ -321,7 +329,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void showStatsOne(String key, Map<String, Integer> count){
-        List<Integer> colors = getRandomColors();
         LinearLayout results = findViewById(R.id.resultsView);
         LayoutInflater inflater = getLayoutInflater();
         View statsView = inflater.inflate(R.layout.stats_card, null);
@@ -332,11 +339,9 @@ public class MainActivity extends AppCompatActivity {
             Log.d("PeggyCharts","null object");
         }
         List<SliceValue> pieData = new ArrayList<>();
-        int i = 0;
         for(String value : count.keySet()){
             if(count.get(value)>0) {
-                pieData.add(new SliceValue(count.get(value), colors.get(i)).setLabel(value));
-                i++;
+                pieData.add(new SliceValue(count.get(value), getRandomColor()));
             }
         }
         PieChartData pieChartData = new PieChartData(pieData);
@@ -346,13 +351,9 @@ public class MainActivity extends AppCompatActivity {
         results.addView(statsView);
     }
 
-    private List<Integer> getRandomColors() {
-        List<Integer> colors = new ArrayList<>();
+    private int getRandomColor() {
         Random rnd = new Random();
-        for (int i = 0; i < 10; i++){
-            colors.add(Color.argb( 255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256)));
-        }
-        return colors;
+        return Color.argb( 255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
     }
 
     private void displayResutls(List<Book> books) {

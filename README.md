@@ -26,7 +26,7 @@ I built the application primarily using AndriodStudio with Java.
 Though the central goal of the app is for users to see the data of the books that they have read by their own metrics, it would be difficult to do so without being able to save books, which in turn is easiest if one can search for books in existing libraries.
 I therefore decided to start building this application by implementing a search function to find books. I did some research on existing online libraries and chose openlibrary.org as it is free, open, and easy to use.
 As openlibrary.org has a RESTful API, I started by learning about REST and how to integrate it in Java. I ended up using Retrofit for this purpose, creating Java Objects by sending the results through GSon.
-Some challenges I encountered at this
+Some challenges I encountered at this stage included establishing the connection correctly.
 
  -- How to run the application --
 Currently, the application is set up to communicate with the MongoDB on the localhost of a computer running an Android emulator. You will therefore need to load and open the database on your own machine first.
