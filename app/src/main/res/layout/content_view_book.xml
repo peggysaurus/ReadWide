@@ -13,8 +13,6 @@
         android:layout_width="100dp"
         android:layout_height="0dp"
         android:layout_marginTop="16dp"
-        android:layout_marginBottom="16dp"
-        app:layout_constraintBottom_toTopOf="@+id/setMetricsView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -59,10 +57,11 @@
             android:layout_marginRight="0dp"
             android:layout_marginBottom="10dp"
             android:text="TextView" />
+
     </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/setMetricsView"
+    <ScrollView
+        android:id="@+id/bookScroll"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:orientation="vertical"
@@ -71,16 +70,36 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/linearLayout2">
 
-        <TextView
-            android:id="@+id/addHeader"
+        <LinearLayout
+            android:id="@+id/setMetricsView"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Mark Book as Read"
-            android:textAlignment="center"
-            android:textSize="24sp"
-            android:textStyle="bold" />
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toTopOf="@+id/saveBookBtn"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/linearLayout2">
 
-    </LinearLayout>
+            <TextView
+                android:id="@+id/addHeader"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Mark Book as Read"
+                android:textAlignment="center"
+                android:textSize="24sp"
+                android:textStyle="bold" />
+
+            <EditText
+                android:id="@+id/focusField"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:ems="10"
+                android:inputType="textPersonName" />
+
+        </LinearLayout>
+    </ScrollView>
+
+
 
     <Button
         android:id="@+id/saveBookBtn"

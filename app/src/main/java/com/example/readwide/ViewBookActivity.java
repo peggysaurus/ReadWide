@@ -23,9 +23,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import android.os.Parcelable;
+import android.text.InputType;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.CompoundButton;
@@ -34,6 +36,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import org.bson.Document;
@@ -120,6 +123,13 @@ public class ViewBookActivity extends AppCompatActivity {
                 addUserBook();
             }
         });
+
+        EditText focus = findViewById(R.id.focusField);
+        focus.findFocus();
+//        focus.setVisibility(EditText.INVISIBLE);
+        focus.setInputType(InputType.TYPE_NULL);
+        ((InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(focus.getWindowToken(),0);
+        this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
     }
 
     private void addUserBook(){
@@ -197,7 +207,17 @@ public class ViewBookActivity extends AppCompatActivity {
         for (String key : metric.getKeys()) {
             addRagioGroup(metview, metric, key);
         }
+        ScrollView sv = findViewById(R.id.bookScroll);
+        sv.scrollTo(sv.getTop(), sv.getScrollY());
+        EditText focus = findViewById(R.id.focusField);
+        focus.findFocus();
+        InputMethodManager imm = (InputMethodManager)getSystemService(INPUT_METHOD_SERVICE);
+        if(getCurrentFocus()!=null) {
+            imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+        }
     }
+
+
 
 
     private void addRagioGroup(LinearLayout metview, MetricInterpretor met, String key) {
@@ -224,6 +244,7 @@ public class ViewBookActivity extends AppCompatActivity {
         et.setText("");
         et.setHint("Enter other option");
         et.setEnabled(false);
+        et.clearFocus();
         rb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
