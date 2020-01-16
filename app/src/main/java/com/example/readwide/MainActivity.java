@@ -273,6 +273,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private List<UserMetric> getStandardMetrics(){
+        //TODO Fix this so it doesn't have empty radio buttons
         List <UserMetric> metrics = new ArrayList<>();
         UserMetric um1 = new UserMetric();
         um1.setGenre(new ArrayList<>());
