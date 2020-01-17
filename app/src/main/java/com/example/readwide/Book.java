@@ -131,33 +131,6 @@ public class Book {
         this.publicScanB = publicScanB;
     }
 
-    public View getSmallView(LayoutInflater inflater, final Context context, final Intent intent, final User user){
-
-        View bookView = inflater.inflate(R.layout.result_card, null);
-        TextView title_tv = bookView.findViewById(R.id.title_tv);
-        title_tv.setText(getTitle());
-        TextView author_tv = bookView.findViewById(R.id.author_tv);
-        if(getAuthorName()!=null) {
-            author_tv.setText(getAuthorName().get(0));
-        }
-        else{
-            author_tv.setText("Unknown");
-        }
-        ImageView cover_iv = bookView.findViewById(R.id.cover_iv);
-        Picasso.with(context).load(getMediumCover()).into(cover_iv);
-        bookView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d("Peggy","Open the book page for " + getKey());
-                intent.putExtra("key",getKey());
-                intent.putExtra("book",getJsonString());
-                intent.putExtra("user", (new Gson()).toJson(user));
-                context.startActivity(intent);
-            }
-        });
-        return bookView;
-    }
-
     public String getSmallCover(){
         return "https://covers.openlibrary.org/b/id/" + getCoverI() + "-S.jpg";
     }

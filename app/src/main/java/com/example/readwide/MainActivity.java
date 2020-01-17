@@ -1,5 +1,6 @@
 package com.example.readwide;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -19,6 +20,7 @@ import com.mongodb.stitch.android.services.mongodb.remote.RemoteMongoCollection;
 import com.mongodb.stitch.core.auth.providers.anonymous.AnonymousCredential;
 import com.mongodb.stitch.core.services.mongodb.remote.RemoteUpdateOptions;
 import com.mongodb.stitch.core.services.mongodb.remote.RemoteUpdateResult;
+import com.squareup.picasso.Picasso;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -34,6 +36,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.ProgressBar;
@@ -153,7 +156,9 @@ public class MainActivity extends AppCompatActivity {
 
             try {
                 Call<SearchResult> call = oll.getBooks(search);
+                Log.d("Peggy","call created but not enqueued");
                 call.enqueue(callBack());
+                Log.d("Peggy","call enqueued");
             } catch (NetworkOnMainThreadException e) {
                 Log.d("PeggyNobes", "networkonmainthreadexception going on");
             } catch (Exception e) {
@@ -163,8 +168,31 @@ public class MainActivity extends AppCompatActivity {
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
     }
 
+    public View getSmallView(Book b){
+        LayoutInflater inflater = getLayoutInflater();
+        View bookView = inflater.inflate(R.layout.result_card, null);
+        TextView title_tv = bookView.findViewById(R.id.title_tv);
+        title_tv.setText(b.getTitle());
+        TextView author_tv = bookView.findViewById(R.id.author_tv);
+        if(b.getAuthorName()!=null) {
+            author_tv.setText(b.getAuthorName().get(0));
+        }
+        else{
+            author_tv.setText("Unknown");
+        }
+        ImageView cover_iv = bookView.findViewById(R.id.cover_iv);
+        Picasso.with(getApplicationContext()).load(b.getMediumCover()).into(cover_iv);
+        bookView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) { viewBook(b);
+            }
+        });
+        return bookView;
+    }
+
 
     public void loadDataView() {
+        clearResults();
         Log.d("Peggy","Started loadDataView");
         LinearLayout container = findViewById(R.id.resultsView);
         if(user!=null) {
@@ -341,7 +369,7 @@ public class MainActivity extends AppCompatActivity {
         List<SliceValue> pieData = new ArrayList<>();
         for(String value : count.keySet()){
             if(count.get(value)>0) {
-                pieData.add(new SliceValue(count.get(value), getRandomColor()));
+                pieData.add(new SliceValue(count.get(value), getRandomColor()).setLabel(value));
             }
         }
         PieChartData pieChartData = new PieChartData(pieData);
@@ -358,11 +386,19 @@ public class MainActivity extends AppCompatActivity {
 
     private void displayResutls(List<Book> books) {
         LinearLayout results = findViewById(R.id.resultsView);
-        LayoutInflater inflater = getLayoutInflater();
         for (Book b : books){
-            results.addView(b.getSmallView(inflater, this.getApplicationContext(), new Intent(MainActivity.this, ViewBookActivity.class),user));
+            results.addView(getSmallView(b));
         }
 
+    }
+
+    public void viewBook(Book b){
+        Log.d("Peggy","Open the book page for " + b.getKey());
+        Intent intent = new Intent(MainActivity.this,ViewBookActivity.class);
+        intent.putExtra("key",b.getKey());
+        intent.putExtra("book",b.getJsonString());
+        intent.putExtra("user", (new Gson()).toJson(user));
+        startActivity(intent);
     }
 
     public void afterSearch(List<Book> books){
