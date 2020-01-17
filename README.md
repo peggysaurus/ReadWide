@@ -20,39 +20,6 @@ The application itself is built with Android in Java, from Android 7.0 Nougat. I
 - Some threading is managed with rxjava
 - Charts are made using hellocharts
 
- -- How you built the application --
-I built the application primarily using AndriodStudio with Java.
-Though the central goal of the app is for users to see the data of the books that they have read by their own metrics, it would be difficult to do so without being able to save books, which in turn is easiest if one can search for books in existing libraries.
-I therefore decided to start building this application by implementing a search function to find books. I did some research on existing online libraries and chose openlibrary.org as it is free, open, and easy to use.
-As openlibrary.org has a RESTful API, I started by learning about REST and how to integrate it in Java. I ended up using Retrofit for this purpose, creating Java Objects by sending the results through GSon.
-Some challenges I encountered at this stage included establishing the connection correctly.
-- build localhost mongoDB database
-- fill radio buttons from metrics in db
-- save book with marked tags to db
-- let user enter new answer to metrics
-- save new answers to database to be options in future
-- display total books read on start up
-- display metrics as piecharts
-- deploy database to cloud
-- testing on other device found new issues
-
- -- How to run the application --
-If you trust me as an "unknown source" you can download the "app-release.apk" from the following google drive folder:
-https://drive.google.com/open?id=1vQKu7bOqpa3nUxJ4CshaztNimdY99Y0d
-
- -- How to test the application --
-At this stage, testing is been done entirely by running on an Android Emulator and on a Nokia 7 plus running Android version 9. Though JUnit tests would be helpful, I decided this was not my priority given the tight timeline.
-
- -- Software tools used --
-Android Studio, 
-MongoDB via Ubuntu on the localhost, then later moved to Atlas accessed through Stitch.
-
- -- Tangible results --
-I achieved considerably more than I thought I would be able to in a single week, with an application c
-
- -- Screenshots or animated GIFs showing user flows (if customer-facing) --
-
- -- Links to web pages or installers for desktop applications --
-
- -- Links to code --
-https://github.com/peggysaurus/ReadWide
+ -- A Note on the Code --
+ This project began as part of an assignment for a Master of Software development, with the very short timeframe of 3 and a half days to go from nothing to a demonstable product. The goal of the assignment was to learn new things, and I had little to no familiarity with most of the tools used at the start. A great deal of trial and error was involved, as well as changing how I approached things half way through and the code is therefore not the tidiest or most consistent.
+ I hope to return to this project to both progress with the long term goals, and tidy up the current state of the code. However, with other assignments coming up quickly I'm not sure when I'll be able to really focus on it again.
